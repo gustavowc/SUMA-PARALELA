@@ -9,8 +9,8 @@ app = Flask(__name__)
 def conectar_bd():
     return mysql.connector.connect(
         host='localhost',
-        user='root',  # Cambia esto si tu usuario es diferente
-        password='',  # Cambia esto si tienes contraseña
+        user='root',  
+        password='',  
         database='suma_paralela'
     )
 
