@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Suma Paralela</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .container {
+            margin-top: 50px;
+        }
+        h1, h2 {
+            margin-bottom: 20px;
+        }
+        .btn {
+            margin: 5px;
+        }
+        #numeros-container {
+            margin-top: 20px;
+        }
+        table {
+            margin-top: 20px;
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #343a40;
+            padding: 10px;
+            text-align: center;
+        }
+        th {
+            background-color: #343a40;
+            color: white;
+        }
+        #suma-total {
+            font-size: 24px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center">Agregar Números para Sumar</h1>
+        <form id="formulario" method="POST" class="form-inline justify-content-center">
+            <div class="form-group mb-2">
+                <input type="number" class="form-control" name="numero" id="numero" placeholder="Número" required>
+            </div>
+            <button type="submit" class="btn btn-primary mb-2">Agregar</button>
+        </form>
+
+        <div class="text-center">
+            <button type="button" class="btn btn-success" id="generar-1000">Generar 1000 Datos</button>
+            <button type="button" class="btn btn-success" id="generar-10000">Generar 10000 Datos</button>
+            <button type="button" class="btn btn-success" id="generar-100000">Generar 100000 Datos</button>
+            <button type="button" class="btn btn-danger" id="borrar-todos">Borrar Todos los Datos</button>
+        </div>
+
+        <h2 class="text-center">Suma Total</h2>
+        <p class="text-center" id="suma-total">{{ suma_total }}</p>
+
+        <div id="numeros-container">
+            <h2 class="text-center">Números Almacenados</h2>
+            <div id="numeros-tabla" class="table-responsive">
+                {{ numeros_html|safe }}
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            $('#formulario').on('submit', function(e) {
+                e.preventDefault(); // Prevenir el envío normal del formulario
+
+                const numero = $('#numero').val(); // Obtener el número ingresado
+
+                // Enviar el número al servidor usando AJAX
+                $.ajax({
+                    url: '/',
+                    type: 'POST',
+                    data: { numero: numero },
+                    success: function(data) {
+                        // Actualizar la lista de números y la suma total
+                        $('#numeros-tabla').html(data.numeros_html);
+                        $('#suma-total').text(data.suma_total);
+                        $('#numero').val(''); // Limpiar el campo de entrada
+                    }
+                });
+            });
+
+            // Funciones para generar datos
+            $('#generar-1000').click(function() {
+                generarDatos(1000);
+            });
+
+            $('#generar-10000').click(function() {
+                generarDatos(10000);
+            });
+
+            $('#generar-100000').click(function() {
+                generarDatos(100000);
+            });
+
+            $('#borrar-todos').click(function() {
+                borrarTodosDatos();
+            });
+
+            function generarDatos(cantidad) {
+                $.ajax({
+                    url: '/generar/' + cantidad,
+                    type: 'POST',
+                    success: function(data) {
+                        $('#numeros-tabla').html(data.numeros_html);
+                        $('#suma-total').text(data.suma_total);
+                    }
+                });
+            }
+
+            function borrarTodosDatos() {
+                $.ajax({
+                    url: '/borrar',
+                    type: 'POST',
+                    success: function(data) {
+                        $('#numeros-tabla').html(data.numeros_html);
+                        $('#suma-total').text(data.suma_total);
+                    }
+                });
+            }
+        });
+    </script>
+    
+</body>
+</html>
